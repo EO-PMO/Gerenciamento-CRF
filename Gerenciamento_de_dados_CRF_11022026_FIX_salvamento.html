@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>IDOR • Plano de Imputação v7.4</title>
+<style>
+:root{
+  --primary:#003DA5;
+  --primary2:#002855;
+  --gold:#C6A27C;
+
+  --bg:#F6F8FB;
+  --card:#FFFFFF;
+  --text:#0F172A;
+  --muted:#475569;
+  --line:rgba(15,23,42,.10);
+  --shadow: 0 14px 28px rgba(2,6,23,.10);
+  --radius:16px;
+
+  --ok:#16A34A;
+  --warn:#D97706;
+  --bad:#DC2626;
+
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:var(--sans);
+  background:
+    radial-gradient(1100px 520px at 10% -10%, rgba(0,61,165,.14), transparent 60%),
+    radial-gradient(900px 520px at 95% -10%, rgba(198,162,124,.18), transparent 55%),
+    var(--bg);
+  color:var(--text);
+}
+a{color:var(--primary);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.topbar{
+  position:sticky; top:0; z-index:50;
+  background: linear-gradient(90deg, rgba(0,61,165,.10), rgba(198,162,124,.10));
+  border-bottom:1px solid var(--line);
+  backdrop-filter: blur(6px);
+}
+.topbar .inner{
+  max-width: 1180px;
+  margin:0 auto;
+  padding: 14px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.brand{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+.brand .t{
+  font-weight:900;
+  letter-spacing:.2px;
+  color:var(--primary2);
+  font-size:16px;
+}
+.brand .s{
+  font-size:12px;
+  color:var(--muted);
+}
+.pills{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:flex-end;
+}
+.pill{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:8px 10px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background: rgba(255,255,255,.78);
+  box-shadow: 0 10px 18px rgba(2,6,23,.06);
+  font-size:12px;
+  color:var(--muted);
+  white-space:nowrap;
+}
+.pill strong{color:var(--text)}
+.dot{
+  width:10px;height:10px;border-radius:999px;background:var(--ok);
+  box-shadow: 0 0 0 4px rgba(22,163,74,.12);
+}
+
+.wrap{
+  max-width: 1180px;
+  margin: 14px auto 36px;
+  padding: 0 18px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.card{
+  background: var(--card);
+  border:1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow:hidden;
+}
+.card h2{
+  margin:0;
+  padding: 12px 14px;
+  font-size:14px;
+  letter-spacing:.2px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  border-bottom:1px solid var(--line);
+  background: linear-gradient(90deg, rgba(0,61,165,.05), rgba(198,162,124,.06));
+}
+.card .body{ padding: 12px 14px; }
+
+.small{font-size:12px;color:var(--muted);line-height:1.35}
+.hr{border:none;border-top:1px solid var(--line);margin:10px 0}
+
+.row{
+  display:flex; gap:10px; flex-wrap:wrap; align-items:end;
+}
+.field{flex:1 1 160px; min-width: 160px;}
+.field.wide{flex:2 1 260px; min-width: 260px;}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+input,select,textarea{
+  width:100%;
+  padding:10px 11px;
+  border:1px solid rgba(15,23,42,.14);
+  border-radius: 12px;
+  background:#fff;
+  color:var(--text);
+  font-size:13px;
+  outline:none;
+}
+input:focus,select:focus,textarea:focus{
+  border-color: rgba(0,61,165,.45);
+  box-shadow: 0 0 0 4px rgba(0,61,165,.12);
+}
+textarea{min-height:120px;font-family:var(--mono);font-size:12px}
+
+.btn{
+  border:0; cursor:pointer;
+  padding:10px 12px;
+  border-radius: 12px;
+  font-weight:900;
+  font-size:13px;
+  color:#fff;
+  background: linear-gradient(135deg, var(--primary), var(--primary2));
+  box-shadow: 0 12px 18px rgba(0,61,165,.18);
+  white-space:nowrap;
+}
+.btn2{
+  border:1px solid rgba(0,61,165,.22);
+  cursor:pointer;
+  padding:10px 12px;
+  border-radius: 12px;
+  font-weight:900;
+  font-size:13px;
+  color:var(--primary2);
+  background: rgba(0,61,165,.04);
+  white-space:nowrap;
+}
+.btnDanger{
+  border:1px solid rgba(220,38,38,.22);
+  cursor:pointer;
+  padding:10px 12px;
+  border-radius: 12px;
+  font-weight:900;
+  font-size:13px;
+  color:#991b1b;
+  background: rgba(220,38,38,.06);
+  white-space:nowrap;
+}
+
+.kpis{
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+@media (max-width: 900px){ .kpis{ grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px){ .kpis{ grid-template-columns: 1fr; } }
+
+.kpi{
+  border:1px solid var(--line);
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: linear-gradient(180deg, rgba(0,61,165,.03), transparent 70%);
+}
+.kpi .t{font-size:11px;color:var(--muted)}
+.kpi .v{font-size:18px;font-weight:950;margin-top:6px;font-family:var(--mono)}
+.kpi .b{margin-top:6px;font-size:11px;color:var(--muted)}
+
+.tableWrap{
+  overflow:auto;
+  border:1px solid var(--line);
+  border-radius: 14px;
+  background:#fff;
+  max-height: 520px;
+}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;white-space:nowrap}
+th{position:sticky;top:0;background:#fff;font-size:12px;color:var(--muted);font-weight:900}
+
+.progress{
+  height:8px;background:rgba(15,23,42,.10);
+  border-radius:999px;overflow:hidden;margin-top:4px
+}
+.progress > div{
+  height:100%;
+  background: linear-gradient(90deg, var(--primary), var(--gold));
+}
+.badge2{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:4px 8px; border-radius:999px;
+  border:1px solid var(--line);
+  background: rgba(2,6,23,.03);
+  font-size:12px; color:var(--muted);
+}
+
+.grid2{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 900px){ .grid2{ grid-template-columns: 1fr; } }
+
+.planCard{
+  border:1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px;
+  background:#fff;
+}
+.planHead{
+  display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;
+  margin-bottom: 8px;
+}
+.planHead .name{font-weight:950;color:var(--primary2)}
+.planHead .meta{display:flex;gap:8px;flex-wrap:wrap}
+.planHead .meta .badge2 strong{color:var(--text)}
+.planTable th, .planTable td{white-space:normal}
+.planTable td{padding:8px 10px}
+
+.chk{
+  display:flex; align-items:flex-start; gap:8px;
+}
+.chk input{width:auto;margin-top:2px}
+.note{margin-top:6px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="inner">
+    <div class="brand">
+      <div class="t">IDOR • Plano Operacional de Imputação de Dados</div>
+      <div class="s">Planejamento operacional integrado, acompanhamento de execução e controle de progresso por estudo</div>
+    </div>
+    <div class="pills">
+      <div class="pill"><span class="dot"></span> Autosave local</div>
+      <div class="pill">Último save: <strong id="pillSaved">—</strong></div>
+      <div class="pill">Semana (ref.): <strong id="pillWeek">1</strong></div>
+      <div class="pill">Perfil: <strong id="pillRole">Gestor</strong></div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="card">
+    <h2>Governança</h2>
+    <div class="body">
+      <div class="row">
+        <div class="field">
+          <label>Perfil</label>
+          <select id="roleSel">
+            <option value="gestor">Gestor</option>
+            <option value="de">Data Entry</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Senha do Gestor (opcional)</label>
+          <input id="mgrPin" placeholder="ex.: 1234" inputmode="numeric">
+        </div>
+        <div class="field">
+          <label>&nbsp;</label>
+          <button class="btn2" id="applyRoleBtn">Aplicar</button>
+        </div>
+        <div class="field wide">
+          <div class="pill">Status: <strong id="roleStatus">—</strong></div>
+          <div class="small" style="margin-top:6px">
+            Em modo <b>Data Entry</b>, edição de estudo fica bloqueada; só entra registro semanal (execução).
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Parâmetros do plano</h2>
+    <div class="body">
+      <div class="row">
+        <div class="field">
+          <label>Data Entry (qtd)</label>
+          <input id="deCount" type="number" min="1" value="2">
+        </div>
+        <div class="field">
+          <label>Dias úteis/semana</label>
+          <input id="daysWeek" type="number" min="1" max="7" value="5">
+        </div>
+        <div class="field">
+          <label>Semana de referência (2ª feira)</label>
+          <input id="weekStart" type="date">
+        </div>
+        <div class="field wide">
+          <div class="small">
+            Meta semanal do estudo = <b>(pacientes restantes ÷ prazo em semanas)</b>.
+            O plano reparte essa meta entre os DEs e compara com o <b>realizado</b> (lançamentos da mesma semana).
+          </div>
+        </div>
+      </div>
+
+      <div class="kpis" style="margin-top:12px">
+        <div class="kpi"><div class="t">Estudos</div><div class="v" id="kStudies">0</div><div class="b">Total cadastrados</div></div>
+        <div class="kpi"><div class="t">Pacientes totais</div><div class="v" id="kTot">0</div><div class="b">Somatório</div></div>
+        <div class="kpi"><div class="t">Pacientes imputados</div><div class="v" id="kDone">0</div><div class="b">Real até agora</div></div>
+        <div class="kpi"><div class="t">Aderência do plano</div><div class="v" id="kAdh">—</div><div class="b">Real/Planejado na semana</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="studyEditorCard">
+    <h2>Cadastro / Edição de Estudo (Gestor)</h2>
+    <div class="body">
+      <div class="row">
+        <div class="field wide">
+          <label>Estudo</label>
+          <input id="name" placeholder="Nome do estudo">
+        </div>
+        <div class="field">
+          <label>Pacientes totais</label>
+          <input id="patients" type="number" min="0" placeholder="80">
+        </div>
+        <div class="field">
+          <label>Pacientes já imputados</label>
+          <input id="done" type="number" min="0" placeholder="0">
+        </div>
+        <div class="field">
+          <label>Data de início</label>
+          <input id="startDate" type="date">
+        </div>
+        <div class="field">
+          <label>Data final esperada</label>
+          <input id="endDate" type="date">
+        </div>
+        <div class="field">
+          <label>&nbsp;</label>
+          <button class="btn" id="saveBtn">Salvar</button>
+          <button class="btn2" id="newBtn">Novo</button>
+        </div>
+      </div>
+      <div class="small">Ação de gestão: definir escopo, prazo e acompanhar a cadência (meta semanal).</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Status dos estudos</h2>
+    <div class="body">
+      <div class="tableWrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="min-width:280px">Estudo</th>
+              <th>Total</th>
+              <th>Imput.</th>
+              <th>Rest.</th>
+              <th>%</th>
+              <th>Meta/sem</th>
+              <th style="min-width:220px">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyStudies"></tbody>
+        </table>
+      </div>
+      <div class="small" style="margin-top:10px">
+        Botão <b>Histórico</b> expande os lançamentos do estudo. Em modo Gestor, aparece <b>Editar/Excluir</b>.
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Planejamento semanal • Pessoas e ações</h2>
+    <div class="body">
+      <div class="small">
+        Abaixo, cada Data Entry recebe um “quadro” com objetivos da semana, realizado e checklist de ações (marcação local).
+      </div>
+      <div class="grid2" id="planBlocks" style="margin-top:12px"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Registro semanal (Data Entry)</h2>
+    <div class="body">
+      <div class="row">
+        <div class="field wide">
+          <label>Estudo</label>
+          <select id="logStudy"></select>
+        </div>
+        <div class="field">
+          <label>Semana de referência</label>
+          <input id="logWeekStart" type="date">
+        </div>
+        <div class="field">
+          <label>Pacientes imputados</label>
+          <input id="logPatients" type="number" min="0" placeholder="ex.: 12">
+        </div>
+        <div class="field">
+          <label>Data Entry</label>
+          <select id="logDE"></select>
+        </div>
+        <div class="field">
+          <label>&nbsp;</label>
+          <button class="btn" id="logBtn">Registrar</button>
+        </div>
+      </div>
+      <div id="logMsg" class="small" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Resumo semanal (para e-mail/Teams)</h2>
+    <div class="body">
+      <textarea id="weekSummary" rows="10"></textarea>
+      <div class="row" style="justify-content:flex-end;margin-top:10px">
+        <button class="btn2" id="copyBtn">Copiar</button>
+        <button class="btn2" id="exportBtn">Exportar JSON</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="modal" style="display:none; position:fixed; inset:0; background:rgba(2,6,23,.45); padding:18px; z-index:99;">
+  <div style="max-width:900px; margin:6vh auto; background:#fff; border-radius:16px; border:1px solid var(--line); overflow:hidden;">
+    <div style="padding:12px 14px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;">
+      <b>Export (JSON)</b>
+      <button class="btn2" id="closeModal">Fechar</button>
+    </div>
+    <div style="padding:14px;">
+      <textarea id="exportArea" style="width:100%; height: 280px; border-radius: 14px; border:1px solid var(--line); padding: 12px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px;"></textarea>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Storage */
+const LS_KEY = "idor_v74_prof";
+const LS_ROLE = "idor_v76_role_persist";
+const MANAGER_PIN = "1234"; // Troque aqui
+
+const LS_TASK = "idor_v74_tasks";
+
+/* State */
+let state = loadState();
+let editId = null;
+let expandedId = null;
+
+/* Role */
+function getRole(){ return localStorage.getItem(LS_ROLE) || "de"; }
+function setRole(r){ localStorage.setItem(LS_ROLE, r); }
+/* Load/Save */
+function loadState(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw){
+      return {
+        deCount: 2,
+        daysWeek: 5,
+        weekStart: isoDate(getMonday(new Date())),
+        studies: [
+          {id: crypto.randomUUID(), name:"DeniLA", total:80, done:0, startDate:"", endDate:"", history:[]},
+          {id: crypto.randomUUID(), name:"Despatil", total:21, done:0, startDate:"", endDate:"", history:[]}
+        ]
+      };
+    }
+    const s = JSON.parse(raw);
+    if(!s || !Array.isArray(s.studies)) throw new Error("bad");
+    s.deCount = Math.max(1, Number(s.deCount)||2);
+    s.daysWeek = Math.max(1, Number(s.daysWeek)||5);
+    s.planWeek = Math.max(1, Number(s.planWeek)||1);
+    s.studies.forEach(x=>{
+      if(!Array.isArray(x.history)) x.history = [];
+      x.total = Number(x.total)||0;
+      x.done = Number(x.done)||0;
+      x.startDate = x.startDate || "";
+      x.endDate = x.endDate || "";
+    });
+    if(!s.weekStart){ s.weekStart = isoDate(getMonday(new Date())); }
+    return s;
+  }
+  catch(e){
+    return {deCount:2, daysWeek:5, planWeek:1, studies:[]};
+  }
+}
+function saveState(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); touchSaved(); }
+
+function touchSaved(){
+  try{
+    const el = document.getElementById("pillSaved");
+    if(!el) return;
+    const d = new Date();
+    const hh = String(d.getHours()).padStart(2,"0");
+    const mm = String(d.getMinutes()).padStart(2,"0");
+    const ss = String(d.getSeconds()).padStart(2,"0");
+    el.textContent = `${hh}:${mm}:${ss}`;
+  }catch(e){}
+}
+
+
+function loadTasks(){
+  try{ return JSON.parse(localStorage.getItem(LS_TASK) || "{}"); }catch(e){ return {}; }
+}
+function saveTasks(obj){
+  localStorage.setItem(LS_TASK, JSON.stringify(obj||{}));
+}
+
+
+function isoDate(d){ return d.toISOString().slice(0,10); }
+function getMonday(dateObj){
+  const d = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+  const day = d.getDay(); // 0 Sun .. 6 Sat
+  const diff = (day === 0 ? -6 : 1) - day; // to Monday
+  d.setDate(d.getDate() + diff);
+  return d;
+}
+function addDaysISO(iso, days){
+  const d = new Date(iso + "T00:00:00");
+  d.setDate(d.getDate() + days);
+  return isoDate(d);
+}
+function weekRangeLabel(mondayIso){
+  const fri = addDaysISO(mondayIso, 4);
+  const m = mondayIso.split("-").reverse().join("/");
+  const f = fri.split("-").reverse().join("/");
+  return `${m}–${f}`;
+}
+
+/* Helpers */
+function pct(s){ return s.total ? Math.max(0, Math.min(100, Math.round((s.done/s.total)*100))) : 0; }
+function weeksRemainingToEnd(endIso, refMondayIso){
+  if(!endIso) return 1;
+  const end = new Date(endIso + "T00:00:00");
+  const ref = new Date(refMondayIso + "T00:00:00");
+  const diffDays = Math.ceil((end - ref) / (1000*60*60*24));
+  const w = Math.ceil((diffDays + 1) / 7);
+  return Math.max(1, w);
+}
+function metaSemanal(s){
+  const rem = Math.max(0, s.total - s.done);
+  const ref = state.weekStart || isoDate(getMonday(new Date()));
+  const w = weeksRemainingToEnd(s.endDate, ref);
+  return Math.ceil(rem / w);
+}
+function fmt(n){ return Number.isFinite(n) ? Math.round(n).toString() : "—"; }
+function today(){ try{ return new Date().toISOString().slice(0,10);}catch(e){return "";} }
+
+function sumLogged(studyId, week, de){
+  const s = state.studies.find(x=>x.id===studyId);
+  if(!s || !s.history) return 0;
+  return s.history
+    .filter(h=> String(h.week) === String(week) && (!de || h.de===de))
+    .reduce((a,h)=> a + (Number(h.patients)||0), 0);
+}
+
+function buildWeeklyPlan(week){
+  const nDE = Math.max(1, Number(state.deCount)||2);
+  const deNames = Array.from({length:nDE}, (_,i)=>`DE ${i+1}`);
+  const plan = Object.fromEntries(deNames.map(d=>[d, []]));
+
+  const act = state.studies
+    .map(s=>({s, meta: metaSemanal(s), rem: Math.max(0, s.total - s.done)}))
+    .filter(x=>x.rem>0 && x.meta>0)
+    .sort((a,b)=> (b.meta-a.meta) || (b.rem-a.rem));
+
+  act.forEach(({s, meta})=>{
+    const base = Math.floor(meta / nDE);
+    const extra = meta % nDE;
+    for(let i=0;i<nDE;i++){
+      const target = base + (i<extra ? 1 : 0);
+      if(target<=0) continue;
+      plan[deNames[i]].push({
+        studyId: s.id,
+        study: s.name,
+        target,
+        realized: sumLogged(s.id, week, deNames[i])
+      });
+    }
+  });
+
+  deNames.forEach(de=>{
+    plan[de].sort((a,b)=> b.target-a.target);
+  });
+
+  return {deNames, plan};
+}
+
+/* UI: Role */
+function renderRoleUI(){
+  const role = getRole();
+  const roleStatus = document.getElementById("roleStatus");
+  const editorCard = document.getElementById("studyEditorCard");
+  document.getElementById("pillRole").textContent = role === "gestor" ? "Gestor" : "Data Entry";
+
+  if(role==="de"){
+    roleStatus.textContent = "Modo Data Entry (edição bloqueada)";
+    editorCard.style.display = "none";
+  }else{
+    roleStatus.textContent = "Modo Gestor (edição liberada)";
+    editorCard.style.display = "block";
+  }
+}
+
+/* UI: selectors */
+function renderSelectors(){
+  const logDE = document.getElementById("logDE");
+  logDE.innerHTML = "";
+  for(let i=1;i<=state.deCount;i++){
+    const opt = document.createElement("option");
+    opt.value = `DE ${i}`;
+    opt.textContent = `DE ${i}`;
+    logDE.appendChild(opt);
+  }
+
+  const logStudy = document.getElementById("logStudy");
+  logStudy.innerHTML = "";
+  state.studies.forEach(s=>{
+    const opt = document.createElement("option");
+    opt.value = s.id;
+    opt.textContent = s.name;
+    logStudy.appendChild(opt);
+  });
+}
+
+/* UI: KPIs */
+function renderKPIs(){
+  document.getElementById("kStudies").textContent = String(state.studies.length);
+  document.getElementById("kTot").textContent = String(state.studies.reduce((a,s)=>a+(s.total||0),0));
+  document.getElementById("kDone").textContent = String(state.studies.reduce((a,s)=>a+(s.done||0),0));
+
+  const w = state.weekStart;
+  const {deNames, plan} = buildWeeklyPlan(w);
+  const planned = deNames.reduce((a,de)=> a + (plan[de]||[]).reduce((x,r)=>x+r.target,0), 0);
+  const realized = deNames.reduce((a,de)=> a + (plan[de]||[]).reduce((x,r)=>x+r.realized,0), 0);
+  const adh = planned ? Math.round((realized/planned)*100) : 0;
+  document.getElementById("kAdh").textContent = planned ? `${adh}%` : "—";
+
+  document.getElementById("pillWeek").textContent = weekRangeLabel(w);
+}
+
+/* UI: Studies table */
+function renderStudies(){
+  const role = getRole();
+  const tb = document.getElementById("tbodyStudies");
+  tb.innerHTML = "";
+
+  state.studies.forEach(s=>{
+    const rem = Math.max(0, s.total - s.done);
+    const p = pct(s);
+    const meta = metaSemanal(s);
+
+    const editBtn = role==="gestor"
+      ? `<button class="btn2" data-act="edit" data-id="${s.id}">Editar</button>`
+      : `<button class="btn2" disabled title="Somente Gestor">Editar</button>`;
+    const delBtn = role==="gestor"
+      ? `<button class="btnDanger" data-act="del" data-id="${s.id}">Excluir</button>`
+      : ``;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td style="min-width:280px">
+        <b>${s.name}</b>
+        <div class="small">Período: <b>${(s.startDate||"—")}</b> → <b>${(s.endDate||"—")}</b> • Lançamentos: <b>${(s.history||[]).length}</b></div>
+      </td>
+      <td>${fmt(s.total)}</td>
+      <td>${fmt(s.done)}</td>
+      <td>${fmt(rem)}</td>
+      <td>
+        ${p}%
+        <div class="progress"><div style="width:${p}%"></div></div>
+      </td>
+      <td><span class="badge2">${fmt(meta)} pac/sem</span></td>
+      <td>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn2" data-act="toggle" data-id="${s.id}">${expandedId===s.id ? "Fechar" : "Histórico"}</button>
+          ${editBtn}
+          ${delBtn}
+        </div>
+      </td>
+    `;
+    tb.appendChild(tr);
+
+    if(expandedId===s.id){
+      const tr2 = document.createElement("tr");
+      const hist = (s.history||[]).slice().reverse();
+      const list = hist.length ? hist.map(h=>`
+        <div class="item">
+          <div class="l">
+            <div class="t">Semana ${h.week} • ${h.patients} paciente(s)</div>
+            <div class="m">${h.de} • ${h.at||""}</div>
+          </div>
+          <div class="m">Registro soma no imputado</div>
+        </div>
+      `).join("") : `<div class="small">Sem registros.</div>`;
+      tr2.innerHTML = `
+        <td colspan="7">
+          <div class="hist">
+            <div class="histHeader">
+              <div class="pill">Histórico — <strong>${s.name}</strong></div>
+              <div class="pill">Total lançado: <strong>${fmt((s.history||[]).reduce((a,x)=>a+(Number(x.patients)||0),0))}</strong></div>
+            </div>
+            <div class="histList">${list}</div>
+          </div>
+        </td>
+      `;
+      tb.appendChild(tr2);
+    }
+  });
+}
+
+/* Planning blocks (people/actions) */
+function renderPlanning(){
+  const week = state.weekStart;
+  const {deNames, plan} = buildWeeklyPlan(week);
+  const days = Math.max(1, state.daysWeek);
+
+  const tasks = loadTasks();
+  const taskKeyPrefix = `W${week}::`;
+
+  const blocks = document.getElementById("planBlocks");
+  blocks.innerHTML = "";
+
+  const summary = [];
+  summary.push(`PLANO SEMANAL • Semana ${weekRangeLabel(week)} • IDOR`);
+  summary.push(`DEs: ${state.deCount} | Dias úteis/semana: ${days}`);
+  summary.push("");
+
+  deNames.forEach(de=>{
+    const rows = plan[de] || [];
+    const totalTarget = rows.reduce((a,r)=>a+r.target,0);
+    const totalReal = rows.reduce((a,r)=>a+r.realized,0);
+    const adh = totalTarget ? Math.round((totalReal/totalTarget)*100) : 0;
+
+    const div = document.createElement("div");
+    div.className = "planCard";
+
+    const head = document.createElement("div");
+    head.className = "planHead";
+    head.innerHTML = `
+      <div class="name">${de}</div>
+      <div class="meta">
+        <span class="badge2">Planejado: <strong>${fmt(totalTarget)}</strong></span>
+        <span class="badge2">Realizado: <strong>${fmt(totalReal)}</strong></span>
+        <span class="badge2">Aderência: <strong>${totalTarget?adh+"%":"—"}</strong></span>
+        <span class="badge2">Meta/dia: <strong>${fmt(totalTarget/days)}</strong></span>
+      </div>
+    `;
+    div.appendChild(head);
+
+    const t = document.createElement("table");
+    t.className = "planTable";
+    t.innerHTML = `
+      <thead>
+        <tr>
+          <th>Estudo</th>
+          <th>Planejado</th>
+          <th>Realizado</th>
+          <th>%</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    `;
+    const tb = t.querySelector("tbody");
+
+    if(rows.length===0){
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td colspan="5" class="small">Sem alocação sugerida (tudo concluído ou sem metas).</td>`;
+      tb.appendChild(tr);
+    }else{
+      rows.forEach(r=>{
+        const p = r.target ? Math.round((r.realized/r.target)*100) : 0;
+        const key = `${taskKeyPrefix}${de}::${r.studyId}`;
+        const chkState = !!tasks[key]?.done;
+        const note = tasks[key]?.note || "";
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${r.study}</td>
+          <td><b>${fmt(r.target)}</b> <span class="small">(${fmt(r.target/days)}/dia)</span></td>
+          <td>${fmt(r.realized)}</td>
+          <td>${r.target ? p+"%" : "—"}</td>
+          <td>
+            <div class="chk">
+              <input type="checkbox" data-task="${key}" ${chkState?"checked":""}>
+              <div style="flex:1;min-width:180px">
+                <div class="small"><b>Ação</b>: concluir meta do estudo na semana</div>
+                <input class="note" data-note="${key}" placeholder="nota rápida (pendências, bloqueios)" value="${note}">
+              </div>
+            </div>
+          </td>
+        `;
+        tb.appendChild(tr);
+      });
+    }
+
+    div.appendChild(t);
+    blocks.appendChild(div);
+
+    summary.push(`${de}: planejado ${fmt(totalTarget)} | realizado ${fmt(totalReal)} | ${totalTarget?adh+"%":"—"}`);
+    rows.forEach(r=>{
+      summary.push(`  - ${r.study}: ${fmt(r.realized)}/${fmt(r.target)} (${r.target?Math.round((r.realized/r.target)*100):0}%)`);
+    });
+    summary.push("");
+  });
+
+  document.getElementById("weekSummary").value = summary.join("\n");
+
+  // attach listeners for task checkbox + notes
+  blocks.querySelectorAll("input[type='checkbox'][data-task]").forEach(chk=>{
+    chk.addEventListener("change", ()=>{
+      const key = chk.dataset.task;
+      const obj = loadTasks();
+      obj[key] = obj[key] || {};
+      obj[key].done = chk.checked;
+      saveTasks(obj);
+    });
+  });
+  blocks.querySelectorAll("input[data-note]").forEach(inp=>{
+    inp.addEventListener("input", ()=>{
+      const key = inp.dataset.note;
+      const obj = loadTasks();
+      obj[key] = obj[key] || {};
+      obj[key].note = inp.value;
+      saveTasks(obj);
+    });
+  });
+}
+
+/* Master render */
+function renderAll(){
+  // keep state in sync with UI controls
+  state.deCount = Math.max(1, Number(document.getElementById("deCount").value)||2);
+  state.daysWeek = Math.max(1, Number(document.getElementById("daysWeek").value)||5);
+  state.weekStart = document.getElementById("weekStart").value || isoDate(getMonday(new Date()));
+
+  renderRoleUI();
+  renderSelectors();
+  renderKPIs();
+  renderStudies();
+  renderPlanning();
+
+  // top pills
+  // (pillWeek é atualizado em renderKPIs com o range da semana)
+
+  saveState();
+}
+
+/* Events */
+document.getElementById("applyRoleBtn").addEventListener("click", ()=>{
+  const selected = document.getElementById("roleSel").value;
+  const pin = document.getElementById("mgrPin").value.trim();
+
+  if(selected === "gestor"){
+    if(MANAGER_PIN && pin !== MANAGER_PIN){
+      alert("Senha do Gestor incorreta.");
+      return;
+    }
+  }
+  setRole(selected);
+  if(!state.weekStart){ state.weekStart = isoDate(getMonday(new Date())); }
+renderAll();
+});
+
+document.getElementById("saveBtn").addEventListener("click", ()=>{
+  if(getRole()!=="gestor"){ alert("Somente Gestor pode editar/cadastrar."); return; }
+  const name = document.getElementById("name").value.trim();
+  const total = Number(document.getElementById("patients").value)||0;
+  const done = Number(document.getElementById("done").value)||0;
+  const startDate = document.getElementById("startDate").value || "";
+  const endDate = document.getElementById("endDate").value || "";
+  if(!name) return alert("Informe o nome do estudo.");
+
+  if(editId){
+    const s = state.studies.find(x=>x.id===editId);
+    if(!s) return;
+    s.name = name; s.total = total; s.done = done; s.startDate = startDate; s.endDate = endDate;
+    editId = null;
+  }else{
+    state.studies.push({id:crypto.randomUUID(), name, total, done, startDate, endDate, history: []});
+  }
+
+  document.getElementById("name").value="";
+  document.getElementById("patients").value="";
+  document.getElementById("done").value="";
+  document.getElementById("startDate").value="";
+  document.getElementById("endDate").value="";
+  if(!state.weekStart){ state.weekStart = isoDate(getMonday(new Date())); }
+renderAll();
+});
+
+document.getElementById("newBtn").addEventListener("click", ()=>{
+  editId = null;
+  document.getElementById("name").value="";
+  document.getElementById("patients").value="";
+  document.getElementById("done").value="";
+  document.getElementById("startDate").value="";
+  document.getElementById("endDate").value="";
+});
+
+document.getElementById("tbodyStudies").addEventListener("click", (e)=>{
+  const btn = e.target.closest("[data-act]");
+  if(!btn) return;
+  const act = btn.dataset.act;
+  const id = btn.dataset.id;
+
+  if(act==="toggle"){
+    expandedId = expandedId===id ? null : id;
+    if(!state.weekStart){ state.weekStart = isoDate(getMonday(new Date())); }
+renderAll(); return;
+  }
+  if(act==="edit"){
+    if(getRole()!=="gestor") return;
+    const s = state.studies.find(x=>x.id===id);
+    if(!s) return;
+    editId = id;
+    document.getElementById("name").value = s.name;
+    document.getElementById("patients").value = s.total;
+    document.getElementById("done").value = s.done;
+    document.getElementById("startDate").value = s.startDate || "";
+    document.getElementById("endDate").value = s.endDate || "";
+    window.scrollTo({top: 0, behavior: "smooth"});
+    return;
+  }
+  if(act==="del"){
+    if(getRole()!=="gestor") return;
+    const s = state.studies.find(x=>x.id===id);
+    if(!s) return;
+    if(!confirm(`Excluir "${s.name}"?`)) return;
+    state.studies = state.studies.filter(x=>x.id!==id);
+    if(expandedId===id) expandedId=null;
+    if(!state.weekStart){ state.weekStart = isoDate(getMonday(new Date())); }
+renderAll(); return;
+  }
+});
+
+["deCount","daysWeek","weekStart"].forEach(id=>{
+  document.getElementById(id).addEventListener("input", ()=>renderAll());
+});
+
+document.getElementById("logBtn").addEventListener("click", ()=>{
+  const studyId = document.getElementById("logStudy").value;
+  const week = document.getElementById("logWeekStart").value || state.weekStart;
+  const patients = Number(document.getElementById("logPatients").value)||0;
+  const de = document.getElementById("logDE").value;
+
+  if(!studyId) return alert("Selecione o estudo.");
+  if(patients <= 0) return alert("Informe pacientes > 0.");
+
+  const s = state.studies.find(x=>x.id===studyId);
+  if(!s) return;
+
+  if(s.done + patients > s.total){
+    if(!confirm("Isso ultrapassa o total do estudo. Registrar mesmo assim?")) return;
+  }
+
+  s.history.push({week, patients, de, at: today()});
+  s.done += patients;
+
+  document.getElementById("logPatients").value = "";
+  document.getElementById("logMsg").textContent = `Registrado: ${patients} paciente(s) na semana ${weekRangeLabel(week)} (${de}) para “${s.name}”.`;
+  expandedId = s.id;
+
+  if(!state.weekStart){ state.weekStart = isoDate(getMonday(new Date())); }
+renderAll();
+});
+
+document.getElementById("exportBtn").addEventListener("click", ()=>{
+  document.getElementById("exportArea").value = JSON.stringify(state, null, 2);
+  document.getElementById("modal").style.display = "block";
+});
+document.getElementById("closeModal").addEventListener("click", ()=> document.getElementById("modal").style.display="none");
+document.getElementById("modal").addEventListener("click", (e)=>{ if(e.target.id==="modal") document.getElementById("modal").style.display="none"; });
+
+document.getElementById("copyBtn").addEventListener("click", async ()=>{
+  const txt = document.getElementById("weekSummary").value;
+  try{
+    await navigator.clipboard.writeText(txt);
+    alert("Resumo copiado ✅");
+  }catch(e){
+    document.getElementById("exportArea").value = txt;
+    document.getElementById("modal").style.display = "block";
+  }
+});
+
+/* Init */
+document.getElementById("roleSel").value = getRole();
+document.getElementById("mgrPin").value = "";
+document.getElementById("deCount").value = state.deCount;
+document.getElementById("daysWeek").value = state.daysWeek;
+document.getElementById("weekStart").value = state.weekStart;
+
+if(!state.weekStart){ state.weekStart = isoDate(getMonday(new Date())); }
+renderAll();
+
+// Safety: ensure last state is flushed on tab close
+window.addEventListener('beforeunload', ()=>{ try{ saveState(); }catch(e){} });
+</script>
+
+</body>
+</html>
